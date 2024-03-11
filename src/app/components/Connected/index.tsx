@@ -1,18 +1,27 @@
 import { formatAddress, formatBalance } from "@/app/utils/format";
 import { Box, Button, Typography } from "@mui/material";
-import { useEffect, useMemo, useState } from "react";
-import { useDisconnect, useBalance, useChainId } from "wagmi";
+import { useEffect, useState } from "react";
+import { useDisconnect, useBalance, useSwitchChain } from "wagmi";
 import { mockChain } from "../shared/mockData";
+import { AllowedNetwork } from "@/app/config/network-config";
 
 interface ConnectedProps {
   address?: `0x${string}`;
+  chainId?: number;
 }
 
-export function Connected({ address }: ConnectedProps) {
+type Chain = {
+  chainId: number;
+  chainName: string;
+  currency: string;
+};
+
+export function Connected({ address, chainId }: ConnectedProps) {
   const [balance, setBalance] = useState<string>("");
   const [isMounted, setIsMounted] = useState<boolean>(false);
+  const [currentChain, setCurrentChain] = useState<Chain>();
 
-  const currentChainId = useChainId();
+  const { chains, switchChain } = useSwitchChain();
 
   const { disconnect } = useDisconnect();
 
@@ -20,22 +29,21 @@ export function Connected({ address }: ConnectedProps) {
     address: address,
   });
 
-  const currentChain = useMemo(() => {
-    const currentChain = mockChain.find(
-      (item) => item.chainId === currentChainId
-    );
-    return currentChain;
-  }, [currentChainId]);
-
   useEffect(() => {
+    if (AllowedNetwork.includes(chainId) === false) {
+      setTimeout(() => {
+        disconnect();
+      }, 3000);
+      alert("Not supported network. Disconnecting...");
+    }
+    const chain = mockChain.find((item) => item.chainId === chainId);
+    setCurrentChain(chain);
     if (balanceData) setBalance(balanceData.formatted);
-  }, [balanceData]);
+  }, [balanceData, chainId, disconnect]);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
-
-  console.log("hello");
 
   return (
     <>
@@ -62,13 +70,26 @@ export function Connected({ address }: ConnectedProps) {
               gap: "20px",
             }}
           >
+            <Typography>Chain Id: {currentChain?.chainId}</Typography>
             <Typography>Chain: {currentChain?.chainName}</Typography>
             <Typography>Your address: {formatAddress(address!)}</Typography>
             <Typography>
               Your balance: {formatBalance(balance)} {currentChain?.currency}
             </Typography>
+            <Box sx={{ height: "fit-content", gap: "5px" }}>
+              {chains.map((chain) => (
+                <Button
+                  key={chain.id}
+                  onClick={() => switchChain({ chainId: chain.id })}
+                >
+                  {chain.name}
+                </Button>
+              ))}
+            </Box>
+
             <Button
-              sx={{ border: "1px solid #1976d2" }}
+              variant="outlined"
+              color="error"
               onClick={() => disconnect()}
             >
               Disconnect

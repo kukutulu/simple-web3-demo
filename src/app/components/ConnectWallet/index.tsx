@@ -1,6 +1,6 @@
 import { Box, Typography } from "@mui/material";
 import * as React from "react";
-import { useConnect } from "wagmi";
+import { useConnect, useSwitchChain } from "wagmi";
 import { WalletOptions } from "../WalletOptions";
 
 export function ConnectWallet() {

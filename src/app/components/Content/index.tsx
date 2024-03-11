@@ -19,7 +19,10 @@ export function Content() {
         <Box>
           {!wagmiConnect.isConnected && <ConnectWallet />}
           {wagmiConnect.isConnected && (
-            <Connected address={wagmiConnect.address} />
+            <Connected
+              address={wagmiConnect.address}
+              chainId={wagmiConnect.chainId}
+            />
           )}
         </Box>
       ) : (
