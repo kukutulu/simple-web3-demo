@@ -1,29 +1,41 @@
-import { formatAddress, formatEth } from "@/app/utils/format";
+import { formatAddress, formatBalance } from "@/app/utils/format";
 import { Box, Button, Typography } from "@mui/material";
 import { useEffect, useMemo, useState } from "react";
-import { useDisconnect, useBalance } from "wagmi";
+import { useDisconnect, useBalance, useChainId } from "wagmi";
+import { mockChain } from "../shared/mockData";
 
 interface ConnectedProps {
   address?: `0x${string}`;
 }
 
 export function Connected({ address }: ConnectedProps) {
-  const [ethBalance, setEthBalance] = useState<string>("");
+  const [balance, setBalance] = useState<string>("");
   const [isMounted, setIsMounted] = useState<boolean>(false);
+
+  const currentChainId = useChainId();
 
   const { disconnect } = useDisconnect();
 
-  const { data: ethBalanceData } = useBalance({
+  const { data: balanceData } = useBalance({
     address: address,
   });
 
+  const currentChain = useMemo(() => {
+    const currentChain = mockChain.find(
+      (item) => item.chainId === currentChainId
+    );
+    return currentChain;
+  }, [currentChainId]);
+
   useEffect(() => {
-    if (ethBalanceData) setEthBalance(ethBalanceData.formatted);
-  }, [ethBalanceData]);
+    if (balanceData) setBalance(balanceData.formatted);
+  }, [balanceData]);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  console.log("hello");
 
   return (
     <>
@@ -50,8 +62,11 @@ export function Connected({ address }: ConnectedProps) {
               gap: "20px",
             }}
           >
+            <Typography>Chain: {currentChain?.chainName}</Typography>
             <Typography>Your address: {formatAddress(address!)}</Typography>
-            <Typography>Your balance: {formatEth(ethBalance)}</Typography>
+            <Typography>
+              Your balance: {formatBalance(balance)} {currentChain?.currency}
+            </Typography>
             <Button
               sx={{ border: "1px solid #1976d2" }}
               onClick={() => disconnect()}

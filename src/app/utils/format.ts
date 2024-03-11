@@ -3,8 +3,8 @@ export type TruncateStringOptions = {
   last?: number;
 };
 
-export function formatEth(value: string) {
-  return value.slice(0, 6) + " eth";
+export function formatBalance(value: string) {
+  return value.slice(0, 6);
 }
 
 export function truncateString(
