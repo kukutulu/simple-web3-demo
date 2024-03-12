@@ -9,6 +9,7 @@ interface WalletOptionsProps {
 
 export function WalletOptions({ connector, onClick }: WalletOptionsProps) {
   const [isConnect, setIsConnect] = useState<boolean>(false);
+  const [isMounted, setIsMounted] = useState<boolean>(false);
 
   useEffect(() => {
     (async () => {
@@ -17,17 +18,27 @@ export function WalletOptions({ connector, onClick }: WalletOptionsProps) {
     })();
   }, [connector]);
 
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   return (
-    <Box sx={{ display: "flex" }}>
-      <Button
-        sx={{
-          flex: 1,
-          border: "1px solid #1976d2",
-        }}
-        onClick={onClick}
-      >
-        {connector.name}
-      </Button>
-    </Box>
+    <>
+      {isMounted ? (
+        <Box sx={{ display: "flex" }}>
+          <Button
+            sx={{
+              flex: 1,
+              border: "1px solid #1976d2",
+            }}
+            onClick={onClick}
+          >
+            {connector.name}
+          </Button>
+        </Box>
+      ) : (
+        <></>
+      )}
+    </>
   );
 }
