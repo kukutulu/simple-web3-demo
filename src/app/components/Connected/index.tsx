@@ -30,11 +30,13 @@ export function Connected({ address, chainId }: ConnectedProps) {
   });
 
   useEffect(() => {
-    if (AllowedNetwork.includes(chainId) === false) {
-      setTimeout(() => {
-        disconnect();
-      }, 3000);
-      alert("Not supported network. Disconnecting...");
+    if (chainId) {
+      if (AllowedNetwork.includes(chainId) === false) {
+        setTimeout(() => {
+          disconnect();
+        }, 3000);
+        alert("Not supported network. Disconnecting...");
+      }
     }
     const chain = mockChain.find((item) => item.chainId === chainId);
     setCurrentChain(chain);
@@ -86,7 +88,6 @@ export function Connected({ address, chainId }: ConnectedProps) {
                 </Button>
               ))}
             </Box>
-
             <Button
               variant="outlined"
               color="error"
