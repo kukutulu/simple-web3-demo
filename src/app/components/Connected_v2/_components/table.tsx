@@ -1,4 +1,4 @@
-import { abi } from "@/app/ABI/abi";
+import { bep20_abi } from "@/app/ABI/bep20_abi";
 import { useRPCProviderContext } from "@/app/context/rpc-provider-context";
 import { Box, Paper, TableContainer } from "@mui/material";
 import Table from "@mui/material/Table";
@@ -50,26 +50,29 @@ export function DataTable() {
 
   const account = useAccount();
 
-  const tokenAddress = "dai.tokens.ethers.eth";
+  const tokenAddress = "0xfccb260c9074fabb69702c1972aa747aac6e654f";
 
-  // const _getBalance = useCallback(async () => {
-  //   if (!reader) {
-  //     setReader(account.chainId!);
-  //   }
-  //   if (reader) {
-  //     const result = await reader.getBalance(`${account.address}`);
-  //     setBalance(result);
-  //   }
-  // }, [reader, setReader, account.chainId, account.address]);
+  const _getBalance = useCallback(async () => {
+    if (!reader) {
+      setReader(account.chainId!);
+    }
+    if (reader) {
+      const result = await reader.getBalance(`${account.address}`);
+      setBalanceOf(result);
+    }
+  }, [reader, setReader, account.chainId, account.address]);
 
   const _getInfo = useCallback(async () => {
     if (!reader) {
       setReader(account.chainId!);
     } else {
-      const contract = new Contract(tokenAddress, abi, reader);
+      const contract = new Contract(tokenAddress, bep20_abi, reader);
       const _name = await contract.name();
+      console.log("🚀 ~ const_getInfo=useCallback ~ _name:", _name);
       const _symbol = await contract.symbol();
+      console.log("🚀 ~ const_getInfo=useCallback ~ _symbol:", _symbol);
       const _decimals = await contract.decimals();
+      console.log("🚀 ~ const_getInfo=useCallback ~ _decimals:", _decimals);
       setName(_name);
       setDecimals(_decimals);
       setSymbol(_symbol);
@@ -77,13 +80,9 @@ export function DataTable() {
   }, [account.chainId, reader, setReader]);
 
   useEffect(() => {
-    // _getBalance();
+    _getBalance();
     _getInfo();
-  }, [_getInfo]);
-
-  console.log("🚀 ~ DataTable ~ name:", name);
-  console.log("🚀 ~ DataTable ~ symbol:", symbol);
-  console.log("🚀 ~ DataTable ~ decimals:", decimals);
+  }, [_getBalance, _getInfo]);
 
   return (
     <Box
