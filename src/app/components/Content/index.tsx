@@ -2,8 +2,9 @@ import { Box } from "@mui/material";
 import { ConnectWallet } from "../ConnectWallet";
 import { useAccount } from "wagmi";
 import { Connected } from "../Connected";
-import EthersSignerProvider from "@/app/context/ethers-signer-context";
 import { useEffect, useState } from "react";
+import RPCProviderProvider from "@/app/context/rpc-provider-context";
+import { ConnectedV2 } from "../Connected_v2";
 
 export function Content() {
   const [isMounted, setIsMounted] = useState<boolean>(false);
@@ -20,12 +21,14 @@ export function Content() {
         <Box>
           {!wagmiConnect.isConnected && <ConnectWallet />}
           {wagmiConnect.isConnected && (
-            <EthersSignerProvider>
-              <Connected
-                address={wagmiConnect.address}
-                chainId={wagmiConnect.chainId}
-              />
-            </EthersSignerProvider>
+            <ConnectedV2 />
+            // <RPCProviderProvider>
+            //   {/* <Connected
+            //     address={wagmiConnect.address}
+            //     chainId={wagmiConnect.chainId}
+            //   /> */}
+            //   <ConnectedV2 />
+            // </RPCProviderProvider>
           )}
         </Box>
       ) : (

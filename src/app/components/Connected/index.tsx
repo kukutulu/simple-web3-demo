@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useDisconnect, useBalance, useSwitchChain } from "wagmi";
 import { mockChain } from "../shared/mockData";
 import { AllowedNetwork } from "@/app/config/network-config";
-import { useEthersSignerContext } from "@/app/context/ethers-signer-context";
 
 interface ConnectedProps {
   address?: `0x${string}`;
@@ -20,9 +19,6 @@ type Chain = {
 export function Connected({ address, chainId }: ConnectedProps) {
   const [balance, setBalance] = useState<string>("");
   const [currentChain, setCurrentChain] = useState<Chain>();
-
-  const signer = useEthersSignerContext();
-  console.log(signer);
 
   const { chains, switchChain } = useSwitchChain();
 

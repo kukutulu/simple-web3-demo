@@ -17,7 +17,7 @@ export function ConnectWallet() {
     >
       <Box
         sx={{
-          height: "400px",
+          height: "fit-content",
           width: "380px",
           display: "flex",
           flexDirection: "column",
@@ -60,7 +60,8 @@ export function ConnectWallet() {
               justifyContent: "space-between",
               flexDirection: "column",
               width: "250px",
-              height: "180px",
+              height: "auto",
+              gap: "20px",
             }}
           >
             {connectors.map((connector, index) => (
