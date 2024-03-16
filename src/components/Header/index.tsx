@@ -1,5 +1,5 @@
 import { Box, Button, Popover, Typography } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useAccount, useConnect, useDisconnect, useSwitchChain } from "wagmi";
 import { WalletOption } from "../WalletOption";
 import { formatAddress } from "@/utils/format";
@@ -8,7 +8,7 @@ import { AllowedNetwork } from "@/config/network-config";
 
 export function Header() {
   const [accountAddress, setAccountAddress] = useState<`0x${string}`>();
-  const [isMounted, setIsMounted] = useState(false);
+  // const [isMounted, setIsMounted] = useState(false);
 
   // wagmi hooks
   const { connectors, connect } = useConnect();
@@ -25,6 +25,19 @@ export function Header() {
   const [anchorEl3, setAnchorEl3] = React.useState<HTMLButtonElement | null>(
     null
   );
+
+  const checkSupportedChain = useCallback(() => {
+    if (account.isConnected) {
+      if (AllowedNetwork.includes(account.chainId!) === false) {
+        setTimeout(() => {
+          disconnect();
+        }, 3000);
+        alert("Not supported network! Disconnecting...");
+      }
+      setAccountAddress(account.address);
+      handleClose();
+    }
+  }, [account.address, account.chainId, account.isConnected, disconnect]);
 
   const handleConnectWalletClick = (
     event: React.MouseEvent<HTMLButtonElement>
@@ -65,18 +78,10 @@ export function Header() {
   const open3 = Boolean(anchorEl3);
 
   useEffect(() => {
-    //setIsMounted(true);
     if (account.isConnected) {
-      if (AllowedNetwork.includes(account.chainId!) === false) {
-        setTimeout(() => {
-          disconnect();
-        }, 3000);
-        alert("Not supported network! Disconnecting...");
-      }
-      setAccountAddress(account.address);
-      handleClose();
+      checkSupportedChain();
     }
-  }, [account.address, account.chainId, account.isConnected, disconnect]);
+  }, [account.isConnected, checkSupportedChain]);
 
   // if (!isMounted) {
   //   return null;

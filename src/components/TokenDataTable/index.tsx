@@ -70,7 +70,7 @@ export function TokenDataTable() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [account.chainId, account.isConnected]);
 
-  console.log(reader);
+  console.log(reader?._network.chainId);
 
   return (
     <Paper sx={{ margin: "80px" }}>
