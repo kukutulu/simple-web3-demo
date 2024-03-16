@@ -4,6 +4,7 @@ import { useAccount, useConnect, useDisconnect, useSwitchChain } from "wagmi";
 import { WalletOption } from "../WalletOption";
 import { formatAddress } from "@/utils/format";
 import { getNetworkName } from "@/utils/get-network-name";
+import { AllowedNetwork } from "@/config/network-config";
 
 export function Header() {
   const [accountAddress, setAccountAddress] = useState<`0x${string}`>();
@@ -25,7 +26,9 @@ export function Header() {
     null
   );
 
-  const handleAccountClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleConnectWalletClick = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
     if (!account.isConnected) {
       setAnchorEl(event.currentTarget);
     } else {
@@ -46,29 +49,38 @@ export function Header() {
   };
 
   const handleSwitchChain = (chainId: number) => {
+    if (!account.isConnected) {
+      return;
+    }
     switchChain({ chainId });
     handleClose();
   };
 
   const handleDisconnect = () => {
     disconnect();
-    setAnchorEl2(null);
+    handleClose();
   };
   const open = Boolean(anchorEl);
   const open2 = Boolean(anchorEl2);
   const open3 = Boolean(anchorEl3);
 
   useEffect(() => {
-    setIsMounted(true);
+    //setIsMounted(true);
     if (account.isConnected) {
+      if (AllowedNetwork.includes(account.chainId!) === false) {
+        setTimeout(() => {
+          disconnect();
+        }, 3000);
+        alert("Not supported network! Disconnecting...");
+      }
       setAccountAddress(account.address);
       handleClose();
     }
-  }, [account.address, account.isConnected]);
+  }, [account.address, account.chainId, account.isConnected, disconnect]);
 
-  if (!isMounted) {
-    return null;
-  }
+  // if (!isMounted) {
+  //   return null;
+  // }
 
   return (
     <>
@@ -89,7 +101,7 @@ export function Header() {
               ? getNetworkName(account.chainId)
               : "CHANGE NETWORK"}
           </Button>
-          <Button variant="contained" onClick={handleAccountClick}>
+          <Button variant="contained" onClick={handleConnectWalletClick}>
             {account.isConnected === true
               ? formatAddress(accountAddress!)
               : "Connect Wallet"}

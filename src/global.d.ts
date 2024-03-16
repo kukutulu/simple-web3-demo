@@ -1,30 +1,32 @@
-export const Data = [
-  {
-    icon: "A icon",
-    name: "A coin",
-    symbol: "A symbol",
-    decimal: "A decimal",
-    balanceOf: "A balance",
-  },
-  {
-    icon: "B icon",
-    name: "B coin",
-    symbol: "B symbol",
-    decimal: "B decimal",
-    balanceOf: "B balance",
-  },
-  {
-    icon: "C icon",
-    name: "C coin",
-    symbol: "C symbol",
-    decimal: "C decimal",
-    balanceOf: "C balance",
-  },
-  {
-    icon: "D icon",
-    name: "D coin",
-    symbol: "D symbol",
-    decimal: "D decimal",
-    balanceOf: "D balance",
-  },
-];
+export interface NativeToken {
+  name: string;
+  symbol: string;
+  decimals: number;
+}
+
+export interface BaseChain {
+  name: string;
+  nativeCurrency: NativeToken;
+  chainId: number;
+}
+
+export interface Chain extends BaseChain {
+  blockExplorerUrls: Array<string>;
+  urls: Array<string>;
+  keyToWagmi: string;
+}
+
+export interface ChainType {
+  [chain: string]: Chain;
+}
+
+export type ColumnItemType = {
+  name?: string;
+  symbol?: string;
+  decimals?: bigint;
+  balanceOf?: string;
+};
+
+export type TableDataType = ColumnItemType[];
+
+export type StateStatus = "IDLE" | "PROCESSING" | "SUCCESS" | "FAILED";

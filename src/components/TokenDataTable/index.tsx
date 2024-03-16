@@ -1,5 +1,8 @@
 "use client";
 
+import { AllowedNetwork } from "@/config/network-config";
+import { useRPCProviderContext } from "@/context/rpc-provider-context";
+import { TableDataType } from "@/global";
 import {
   Table,
   TableBody,
@@ -9,50 +12,64 @@ import {
   TableRow,
   Paper,
 } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useAccount } from "wagmi";
 
 const Data = [
   {
     icon: "A icon",
     name: "A coin",
     symbol: "A symbol",
-    decimal: "A decimal",
+    decimals: "A decimal",
     balanceOf: "A balance",
   },
   {
     icon: "B icon",
     name: "B coin",
     symbol: "B symbol",
-    decimal: "B decimal",
+    decimals: "B decimal",
     balanceOf: "B balance",
   },
   {
     icon: "C icon",
     name: "C coin",
     symbol: "C symbol",
-    decimal: "C decimal",
+    decimals: "C decimal",
     balanceOf: "C balance",
   },
   {
     icon: "D icon",
     name: "D coin",
     symbol: "D symbol",
-    decimal: "D decimal",
+    decimals: "D decimal",
     balanceOf: "D balance",
   },
 ];
 
 export function TokenDataTable() {
   const [tableData, setTableData] = useState<typeof Data>(Data);
-  const [isMounted, setIsMounted] = useState(false);
+  const account = useAccount();
+  const { reader, setReader } = useRPCProviderContext();
+  //const [isMounted, setIsMounted] = useState(false);
+
+  // useEffect(() => {
+  //   setIsMounted(true);
+  // }, []);
+
+  // if (!isMounted) {
+  //   return null;
+  // }
 
   useEffect(() => {
-    setIsMounted(true);
-  }, []);
+    if (account.isConnected && AllowedNetwork.includes(account.chainId!)) {
+      setReader(account.chainId!);
+    }
+    if (account.isDisconnected) {
+      setReader(97);
+    }
+  }, [account.chainId, account.isConnected]);
 
-  if (!isMounted) {
-    return null;
-  }
+  console.log(reader);
 
   return (
     <Paper sx={{ margin: "80px" }}>
@@ -74,7 +91,7 @@ export function TokenDataTable() {
               >
                 <TableCell>{item.name}</TableCell>
                 <TableCell>{item.symbol}</TableCell>
-                <TableCell>{item.decimal}</TableCell>
+                <TableCell>{item.decimals}</TableCell>
                 <TableCell>{item.balanceOf}</TableCell>
               </TableRow>
             ))}
