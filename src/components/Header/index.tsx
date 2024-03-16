@@ -139,7 +139,7 @@ export function Header() {
             <WalletOption
               key={index}
               connector={connector}
-              onClick={() => connect({ connector })}
+              onClick={() => connect({ chainId: 56, connector })}
             />
           ))}
         </Box>

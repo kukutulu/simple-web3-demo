@@ -67,6 +67,7 @@ export function TokenDataTable() {
     if (account.isDisconnected) {
       setReader(97);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [account.chainId, account.isConnected]);
 
   console.log(reader);
