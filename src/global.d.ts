@@ -23,7 +23,7 @@ export interface ChainType {
 export type ColumnItemType = {
   name?: string;
   symbol?: string;
-  decimals?: bigint;
+  decimals?: string;
   balanceOf?: string;
 };
 

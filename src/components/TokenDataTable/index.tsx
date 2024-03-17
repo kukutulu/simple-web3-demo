@@ -14,6 +14,8 @@ import {
 } from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
 import { useAccount } from "wagmi";
+import { BigNumber } from "bignumber.js";
+import { useDispatch } from "react-redux";
 
 const Data = [
   {
@@ -47,18 +49,9 @@ const Data = [
 ];
 
 export function TokenDataTable() {
-  const [tableData, setTableData] = useState<typeof Data>(Data);
+  const [tableData, setTableData] = useState<TableDataType>([]);
   const account = useAccount();
   const { reader, setReader } = useRPCProviderContext();
-  //const [isMounted, setIsMounted] = useState(false);
-
-  // useEffect(() => {
-  //   setIsMounted(true);
-  // }, []);
-
-  // if (!isMounted) {
-  //   return null;
-  // }
 
   useEffect(() => {
     if (account.isConnected && AllowedNetwork.includes(account.chainId!)) {
@@ -68,9 +61,9 @@ export function TokenDataTable() {
       setReader(97);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [account.chainId, account.isConnected]);
+  }, [account.chainId, account.isConnected, account.isDisconnected]);
 
-  console.log(reader?._network.chainId);
+  console.log(Number(reader?._network.chainId.toString()));
 
   return (
     <Paper sx={{ margin: "80px" }}>

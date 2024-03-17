@@ -1,20 +1,25 @@
-import { WalletOption } from "@/components/WalletOption";
-import { Box, Popover } from "@mui/material";
-import React from "react";
-import { useConnect } from "wagmi";
+import { Box, Button, Popover, Typography } from "@mui/material";
+import { useDisconnect } from "wagmi";
 
-interface WalletOptionPopoverProps {
+interface AccountConnectedPopoverProps {
   open: boolean;
   anchorEl: HTMLButtonElement | null;
+  accountAddress: `0x${string}`;
   onClose: () => void;
 }
 
-export function WalletOptionPopover({
+export function AccountConnectedPopover({
   open,
   anchorEl,
+  accountAddress,
   onClose,
-}: WalletOptionPopoverProps) {
-  const { connectors, connect } = useConnect();
+}: AccountConnectedPopoverProps) {
+  const { disconnect } = useDisconnect();
+
+  const handleDisconnect = () => {
+    disconnect();
+    onClose();
+  };
 
   return (
     <Popover
@@ -44,13 +49,15 @@ export function WalletOptionPopover({
           padding: "20px",
         }}
       >
-        {connectors.map((connector, index) => (
-          <WalletOption
-            key={index}
-            connector={connector}
-            onClick={() => connect({ chainId: 56, connector })}
-          />
-        ))}
+        <Typography>{accountAddress}</Typography>
+        <Button
+          variant="contained"
+          color="error"
+          sx={{ flex: 1 }}
+          onClick={() => handleDisconnect()}
+        >
+          Disconnect
+        </Button>
       </Box>
     </Popover>
   );

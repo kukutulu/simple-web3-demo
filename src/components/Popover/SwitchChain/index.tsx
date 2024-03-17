@@ -1,20 +1,27 @@
-import { WalletOption } from "@/components/WalletOption";
-import { Box, Popover } from "@mui/material";
-import React from "react";
-import { useConnect } from "wagmi";
+import { Box, Button, Popover } from "@mui/material";
+import { useAccount, useSwitchChain } from "wagmi";
 
-interface WalletOptionPopoverProps {
+interface SwitchChainPopoverProps {
   open: boolean;
   anchorEl: HTMLButtonElement | null;
   onClose: () => void;
 }
 
-export function WalletOptionPopover({
+export function SwitchChainPopover({
   open,
   anchorEl,
   onClose,
-}: WalletOptionPopoverProps) {
-  const { connectors, connect } = useConnect();
+}: SwitchChainPopoverProps) {
+  const { chains, switchChain } = useSwitchChain();
+  const account = useAccount();
+
+  const handleSwitchChain = (chainId: number) => {
+    if (!account.isConnected) {
+      return;
+    }
+    switchChain({ chainId });
+    onClose();
+  };
 
   return (
     <Popover
@@ -44,12 +51,10 @@ export function WalletOptionPopover({
           padding: "20px",
         }}
       >
-        {connectors.map((connector, index) => (
-          <WalletOption
-            key={index}
-            connector={connector}
-            onClick={() => connect({ chainId: 56, connector })}
-          />
+        {chains.map((chain) => (
+          <Button key={chain.id} onClick={() => handleSwitchChain(chain.id)}>
+            {chain.name}
+          </Button>
         ))}
       </Box>
     </Popover>

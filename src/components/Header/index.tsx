@@ -5,16 +5,16 @@ import { WalletOption } from "../WalletOption";
 import { formatAddress } from "@/utils/format";
 import { getNetworkName } from "@/utils/get-network-name";
 import { AllowedNetwork } from "@/config/network-config";
+import { WalletOptionPopover } from "../Popover/WalletOption";
+import { AccountConnectedPopover } from "../Popover/AccountConnected";
+import { SwitchChainPopover } from "../Popover/SwitchChain";
 
 export function Header() {
   const [accountAddress, setAccountAddress] = useState<`0x${string}`>();
-  // const [isMounted, setIsMounted] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
-  // wagmi hooks
-  const { connectors, connect } = useConnect();
   const account = useAccount();
   const { disconnect } = useDisconnect();
-  const { chains, switchChain } = useSwitchChain();
 
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(
     null
@@ -61,31 +61,20 @@ export function Header() {
     setAnchorEl3(null);
   };
 
-  const handleSwitchChain = (chainId: number) => {
-    if (!account.isConnected) {
-      return;
-    }
-    switchChain({ chainId });
-    handleClose();
-  };
-
-  const handleDisconnect = () => {
-    disconnect();
-    handleClose();
-  };
   const open = Boolean(anchorEl);
   const open2 = Boolean(anchorEl2);
   const open3 = Boolean(anchorEl3);
 
   useEffect(() => {
+    setIsMounted(true);
     if (account.isConnected) {
       checkSupportedChain();
     }
   }, [account.isConnected, checkSupportedChain]);
 
-  // if (!isMounted) {
-  //   return null;
-  // }
+  if (!isMounted) {
+    return null;
+  }
 
   return (
     <>
@@ -95,7 +84,6 @@ export function Header() {
           alignItems: "center",
           justifyContent: "space-between",
           padding: "10px 30px 10px",
-          background: "#F7EEDD",
           minHeight: "70px",
         }}
       >
@@ -113,114 +101,22 @@ export function Header() {
           </Button>
         </Box>
       </Box>
-      <Popover
+      <WalletOptionPopover
         open={open}
         anchorEl={anchorEl}
         onClose={handleClose}
-        sx={{
-          width: "auto",
-          height: "auto",
-          marginTop: "20px",
-        }}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "center",
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "left",
-        }}
-      >
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            flexDirection: "column",
-            gap: "20px",
-            padding: "20px",
-          }}
-        >
-          {connectors.map((connector, index) => (
-            <WalletOption
-              key={index}
-              connector={connector}
-              onClick={() => connect({ chainId: 56, connector })}
-            />
-          ))}
-        </Box>
-      </Popover>
-      <Popover
+      />
+      <AccountConnectedPopover
         open={open2}
         anchorEl={anchorEl2}
+        accountAddress={accountAddress!}
         onClose={handleClose}
-        sx={{
-          width: "auto",
-          height: "auto",
-          marginTop: "20px",
-        }}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "center",
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "left",
-        }}
-      >
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            flexDirection: "column",
-            gap: "20px",
-            padding: "20px",
-          }}
-        >
-          <Typography>{accountAddress}</Typography>
-          <Button
-            variant="contained"
-            color="error"
-            sx={{ flex: 1 }}
-            onClick={() => handleDisconnect()}
-          >
-            Disconnect
-          </Button>
-        </Box>
-      </Popover>
-      <Popover
+      />
+      <SwitchChainPopover
         open={open3}
         anchorEl={anchorEl3}
         onClose={handleClose}
-        sx={{
-          width: "auto",
-          height: "auto",
-          marginTop: "20px",
-        }}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "center",
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "left",
-        }}
-      >
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            flexDirection: "column",
-            gap: "20px",
-            padding: "20px",
-          }}
-        >
-          {chains.map((chain) => (
-            <Button key={chain.id} onClick={() => handleSwitchChain(chain.id)}>
-              {chain.name}
-            </Button>
-          ))}
-        </Box>
-      </Popover>
+      />
     </>
   );
 }
