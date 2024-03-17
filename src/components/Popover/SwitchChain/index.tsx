@@ -1,4 +1,3 @@
-import { AllowedNetwork } from "@/config/network-config";
 import { useRPCProviderContext } from "@/context/rpc-provider-context";
 import { resetTable, updateTable } from "@/redux/action";
 import { Box, Button, Popover } from "@mui/material";

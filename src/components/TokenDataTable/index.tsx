@@ -1,7 +1,5 @@
 "use client";
 
-import { AllowedNetwork } from "@/config/network-config";
-import { useRPCProviderContext } from "@/context/rpc-provider-context";
 import { TableDataType } from "@/global";
 import {
   Table,
@@ -12,8 +10,6 @@ import {
   TableRow,
   Paper,
 } from "@mui/material";
-import { useCallback, useEffect, useState } from "react";
-import { useAccount } from "wagmi";
 import { BigNumber } from "bignumber.js";
 import { useSelector } from "react-redux";
 import { tokenDataTableSelector } from "@/redux/selector";
