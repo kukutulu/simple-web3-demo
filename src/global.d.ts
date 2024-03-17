@@ -28,5 +28,3 @@ export type ColumnItemType = {
 };
 
 export type TableDataType = ColumnItemType[];
-
-export type StateStatus = "IDLE" | "PROCESSING" | "SUCCESS" | "FAILED";

@@ -1,7 +1,6 @@
-import { Box, Button, Popover, Typography } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import React, { useCallback, useEffect, useState } from "react";
-import { useAccount, useConnect, useDisconnect, useSwitchChain } from "wagmi";
-import { WalletOption } from "../WalletOption";
+import { useAccount, useDisconnect } from "wagmi";
 import { formatAddress } from "@/utils/format";
 import { getNetworkName } from "@/utils/get-network-name";
 import { AllowedNetwork } from "@/config/network-config";

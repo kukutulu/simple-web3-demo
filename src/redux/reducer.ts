@@ -1,43 +1,51 @@
 const initState = {
   tokenDataTable: [
     {
-      icon: "A icon",
-      name: "A coin",
-      symbol: "A symbol",
-      decimals: "A decimal",
-      balanceOf: "A balance",
+      icon: "DAI icon",
+      name: "Dai",
+      symbol: "DAI",
+      decimals: "18",
+      balanceOf: null,
     },
     {
-      icon: "B icon",
-      name: "B coin",
-      symbol: "B symbol",
-      decimals: "B decimal",
-      balanceOf: "B balance",
+      icon: "USDC icon",
+      name: "USDC",
+      symbol: "USDC",
+      decimals: "6",
+      balanceOf: null,
     },
     {
-      icon: "C icon",
-      name: "C coin",
-      symbol: "C symbol",
-      decimals: "C decimal",
-      balanceOf: "C balance",
+      icon: "USDT icon",
+      name: "Tether USDt",
+      symbol: "USDT",
+      decimals: "6",
+      balanceOf: null,
     },
     {
-      icon: "D icon",
-      name: "D coin",
-      symbol: "D symbol",
-      decimals: "D decimal",
-      balanceOf: "D balance",
+      icon: "WETH icon",
+      name: "WETH",
+      symbol: "WETH",
+      decimals: "18",
+      balanceOf: null,
     },
   ],
 };
 
 const rootReducer = (state = initState, action: any) => {
+  console.log(state, action);
   switch (action.type) {
     case "tokenDataTable/update":
       return {
         ...state,
         tokenDataTable: action.payload,
       };
+    case "tokenDataTable/reset":
+      return initState;
+    // add item to table
+    //   return {
+    //     ...state,
+    //     tokenDataTable: [...state.tokenDataTable, action.payload],
+    //   };
     default:
       return state;
   }

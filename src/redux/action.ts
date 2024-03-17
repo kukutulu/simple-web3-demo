@@ -4,3 +4,9 @@ export const updateTable = (data: any) => {
     payload: data,
   };
 };
+
+export const resetTable = () => {
+  return {
+    type: "tokenDataTable/reset",
+  };
+};

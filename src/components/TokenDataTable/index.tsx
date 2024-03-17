@@ -15,55 +15,13 @@ import {
 import { useCallback, useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 import { BigNumber } from "bignumber.js";
-import { useDispatch } from "react-redux";
-
-const Data = [
-  {
-    icon: "A icon",
-    name: "A coin",
-    symbol: "A symbol",
-    decimals: "A decimal",
-    balanceOf: "A balance",
-  },
-  {
-    icon: "B icon",
-    name: "B coin",
-    symbol: "B symbol",
-    decimals: "B decimal",
-    balanceOf: "B balance",
-  },
-  {
-    icon: "C icon",
-    name: "C coin",
-    symbol: "C symbol",
-    decimals: "C decimal",
-    balanceOf: "C balance",
-  },
-  {
-    icon: "D icon",
-    name: "D coin",
-    symbol: "D symbol",
-    decimals: "D decimal",
-    balanceOf: "D balance",
-  },
-];
+import { useSelector } from "react-redux";
+import { tokenDataTableSelector } from "@/redux/selector";
+import { NoValue } from "../NoValue";
 
 export function TokenDataTable() {
-  const [tableData, setTableData] = useState<TableDataType>([]);
-  const account = useAccount();
-  const { reader, setReader } = useRPCProviderContext();
-
-  useEffect(() => {
-    if (account.isConnected && AllowedNetwork.includes(account.chainId!)) {
-      setReader(account.chainId!);
-    }
-    if (account.isDisconnected) {
-      setReader(97);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [account.chainId, account.isConnected, account.isDisconnected]);
-
-  console.log(Number(reader?._network.chainId.toString()));
+  const tableDataInStore: TableDataType = useSelector(tokenDataTableSelector);
+  console.log("🚀 ~ TokenDataTable ~ tableDataInStore:", tableDataInStore);
 
   return (
     <Paper sx={{ margin: "80px" }}>
@@ -72,21 +30,23 @@ export function TokenDataTable() {
           <TableHead>
             <TableRow>
               <TableCell>Assets</TableCell>
-              <TableCell>Symbol</TableCell>
-              <TableCell>Decimals</TableCell>
-              <TableCell>Balance</TableCell>
+              <TableCell align="center">Symbol</TableCell>
+              <TableCell align="center">Decimals</TableCell>
+              <TableCell align="center">Balance</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {tableData.map((item) => (
+            {tableDataInStore.map((item) => (
               <TableRow
                 key={item.name}
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
               >
                 <TableCell>{item.name}</TableCell>
-                <TableCell>{item.symbol}</TableCell>
-                <TableCell>{item.decimals}</TableCell>
-                <TableCell>{item.balanceOf}</TableCell>
+                <TableCell align="center">{item.symbol}</TableCell>
+                <TableCell align="center">{item.decimals}</TableCell>
+                <TableCell align="center">
+                  {item.balanceOf === null ? <NoValue /> : item.balanceOf}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
