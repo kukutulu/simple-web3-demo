@@ -12,6 +12,7 @@
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.0",
     "@mui/material": "^5.15.13",
+    "@reduxjs/toolkit": "1.7.0",
     "@tanstack/react-query": "^5.25.0",
     "@walletconnect/modal": "^2.6.2",
     "bignumber.js": "^9.1.2",

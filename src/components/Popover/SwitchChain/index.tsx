@@ -1,5 +1,5 @@
 import { useRPCProviderContext } from "@/context/rpc-provider-context";
-import { resetTable, updateTable } from "@/redux/action";
+import { resetTable } from "@/redux/action";
 import { Box, Button, Popover } from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -9,6 +9,7 @@ import { BigNumber } from "bignumber.js";
 import { TableDataType } from "@/global";
 import { useTokenAddressesProviderContext } from "@/context/token-addresses-context";
 import { Contract } from "ethers";
+import { tokenDataTableSlice } from "../../../redux/slices/TokenDataTable";
 
 interface SwitchChainPopoverProps {
   open: boolean;
@@ -47,20 +48,16 @@ export function SwitchChainPopover({
             icon: `/assets/${_symbol}.png`,
             name: _name,
             symbol: _symbol,
-            decimals: _decimals,
+            decimals: _decimals.toString(),
             balanceOf: BigNumber(result.toString())
               .dividedBy(BigNumber(10).pow(_decimals))
               .toFixed(3),
           });
         }
-        dispatch(updateTable([..._tempArr]));
-        console.log(
-          "🚀 ~ const_setTableData=useCallback ~ _tempArr:",
-          _tempArr
-        );
+        dispatch(tokenDataTableSlice.actions.update([..._tempArr]));
       }
     } catch (error) {
-      console.log("🚀 ~ const_getInfo=useCallback ~ error:", error);
+      console.error("🚀 ~ const_getInfo=useCallback ~ error:", error);
     }
   }, [account.address, dispatch, reader, tokenAddresses]);
 
@@ -76,7 +73,7 @@ export function SwitchChainPopover({
   useEffect(() => {
     if (account.isConnected) {
       setReader(account.chainId!);
-      if (account.chainId !== previousChainId) {
+      if (account.chainId !== previousChainId || account.address) {
         _setTableData();
         setPreviousChainId(account.chainId);
       }
@@ -86,9 +83,12 @@ export function SwitchChainPopover({
       dispatch(resetTable());
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [account.chainId, account.isConnected, account.isDisconnected]);
-
-  console.log(Number(reader?._network.chainId.toString()));
+  }, [
+    account.chainId,
+    account.isConnected,
+    account.isDisconnected,
+    account.address,
+  ]);
 
   return (
     <Popover
