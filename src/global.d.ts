@@ -21,6 +21,7 @@ export interface ChainType {
 }
 
 export type ColumnItemType = {
+  icon?: string;
   name?: string;
   symbol?: string;
   decimals?: string;

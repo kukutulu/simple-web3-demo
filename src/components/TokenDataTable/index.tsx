@@ -9,15 +9,14 @@ import {
   TableHead,
   TableRow,
   Paper,
+  Avatar,
 } from "@mui/material";
-import { BigNumber } from "bignumber.js";
 import { useSelector } from "react-redux";
 import { tokenDataTableSelector } from "@/redux/selector";
 import { NoValue } from "../NoValue";
 
 export function TokenDataTable() {
   const tableDataInStore: TableDataType = useSelector(tokenDataTableSelector);
-  console.log("🚀 ~ TokenDataTable ~ tableDataInStore:", tableDataInStore);
 
   return (
     <Paper sx={{ margin: "80px" }}>
@@ -37,11 +36,22 @@ export function TokenDataTable() {
                 key={item.name}
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
               >
-                <TableCell>{item.name}</TableCell>
+                <TableCell
+                  sx={{ display: "flex", alignItems: "center", gap: "10px" }}
+                >
+                  <Avatar alt={`${item.name}`} src={item.icon} />
+                  {item.name}
+                </TableCell>
                 <TableCell align="center">{item.symbol}</TableCell>
-                <TableCell align="center">{item.decimals}</TableCell>
                 <TableCell align="center">
-                  {item.balanceOf === null ? <NoValue /> : item.balanceOf}
+                  {parseInt(item.decimals!.toString())}
+                </TableCell>
+                <TableCell align="center">
+                  {item.balanceOf === null ? (
+                    <NoValue />
+                  ) : (
+                    parseInt(item.balanceOf!.toString())
+                  )}
                 </TableCell>
               </TableRow>
             ))}

@@ -1,28 +1,28 @@
 const initState = {
   tokenDataTable: [
     {
-      icon: "DAI icon",
+      icon: "/assets/DAI.png",
       name: "Dai",
       symbol: "DAI",
       decimals: "18",
       balanceOf: null,
     },
     {
-      icon: "USDC icon",
+      icon: "/assets/USDC.png",
       name: "USDC",
       symbol: "USDC",
       decimals: "6",
       balanceOf: null,
     },
     {
-      icon: "USDT icon",
+      icon: "/assets/USDT.png",
       name: "Tether USDt",
       symbol: "USDT",
       decimals: "6",
       balanceOf: null,
     },
     {
-      icon: "WETH icon",
+      icon: "/assets/WETH.png",
       name: "WETH",
       symbol: "WETH",
       decimals: "18",
@@ -32,7 +32,6 @@ const initState = {
 };
 
 const rootReducer = (state = initState, action: any) => {
-  console.log(state, action);
   switch (action.type) {
     case "tokenDataTable/update":
       return {

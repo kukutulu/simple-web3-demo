@@ -1070,7 +1070,7 @@
   resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-5.28.4.tgz#fa416532f8b33ca8608d40bb9728b60e2e1a38dc"
   integrity sha512-uQZqOFqLWUvXNIQZ63XdKzg22NtHzgCBUfDmjDHi3BoF+nUYeBNvMi/xFPtFrMhqRzG2Ir4mYaGsWZzmiEjXpA==
 
-"@tanstack/react-query@^5.28.4":
+"@tanstack/react-query@^5.25.0":
   version "5.28.4"
   resolved "https://registry.yarnpkg.com/@tanstack/react-query/-/react-query-5.28.4.tgz#32e56ca4fd08513a906fe6323908f0e38ffccbba"
   integrity sha512-BErcoB/QQG6YwLSUKnaGxF+lSc270RH2w3kMBpG0i4YzDCsFs2pdxPX1WVknQvFk9bNgukMb158hc2Zb4SdwSA==
@@ -5237,10 +5237,10 @@ valtio@1.11.2:
     proxy-compare "2.5.1"
     use-sync-external-store "1.2.0"
 
-viem@2.x:
-  version "2.8.10"
-  resolved "https://registry.yarnpkg.com/viem/-/viem-2.8.10.tgz#c81cf6ec6fdf20a5fac5c84fc8aff0d5dce9d666"
-  integrity sha512-rhIdRXWLPMUPjL2aI7oYNn4PrgEimbf2rxEkTjty0L+ZBIvPgKAOZFUeStpAfdWouTDO4yM84Xk4Hh2hrwiK9A==
+viem@2.7.22:
+  version "2.7.22"
+  resolved "https://registry.yarnpkg.com/viem/-/viem-2.7.22.tgz#b6991b73f348d8e3a151f4acea08fddfdc449805"
+  integrity sha512-R/d9AkWXkhiNF4Gk4/A389LSO5PGDdHUBFDKIUkhrdLTDpOhKzbNln6qDry3kYUcmH7lErx3C2eA6rajnc0s9A==
   dependencies:
     "@adraffy/ens-normalize" "1.10.0"
     "@noble/curves" "1.2.0"

@@ -7,6 +7,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import RPCProviderProvider from "@/context/rpc-provider-context";
 import store from "@/redux/store";
 import { Provider } from "react-redux";
+import TokenAddressesProvider from "@/context/token-addresses-context";
 
 const queryClient = new QueryClient();
 
@@ -16,10 +17,12 @@ const AppLayout = ({ children }: { children: ReactNode | undefined }) => {
       <WagmiProvider config={wagmiConfig}>
         <QueryClientProvider client={queryClient}>
           <RPCProviderProvider>
-            <Provider store={store}>
-              <Header />
-              <Container>{children}</Container>
-            </Provider>
+            <TokenAddressesProvider>
+              <Provider store={store}>
+                <Header />
+                <Container>{children}</Container>
+              </Provider>
+            </TokenAddressesProvider>
           </RPCProviderProvider>
         </QueryClientProvider>
       </WagmiProvider>
