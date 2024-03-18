@@ -7,7 +7,7 @@ function Token() {
     <AppLayout>
       <Meta title="Token" />
       <Box>
-        <Typography>Token</Typography>
+        <Typography>Token ID</Typography>
       </Box>
     </AppLayout>
   );

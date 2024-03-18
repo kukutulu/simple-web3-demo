@@ -38,6 +38,7 @@ export function SwitchChainPopover({
     try {
       const _tempArr: TableDataType = [];
       if (reader) {
+        dispatch(tokenDataTableSlice.actions.updatePending([]));
         for (let tokenAddress of tokenAddresses) {
           const contract = new Contract(tokenAddress, bep20_abi, reader);
           const result = await contract.balanceOf(account.address);
@@ -54,9 +55,10 @@ export function SwitchChainPopover({
               .toFixed(3),
           });
         }
-        dispatch(tokenDataTableSlice.actions.update([..._tempArr]));
+        dispatch(tokenDataTableSlice.actions.updateSuccess([..._tempArr]));
       }
     } catch (error) {
+      dispatch(tokenDataTableSlice.actions.reset([]));
       console.error("🚀 ~ const_getInfo=useCallback ~ error:", error);
     }
   }, [account.address, dispatch, reader, tokenAddresses]);
