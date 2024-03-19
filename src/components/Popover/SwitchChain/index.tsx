@@ -1,5 +1,4 @@
 import { useRPCProviderContext } from "@/context/rpc-provider-context";
-import { resetTable } from "@/redux/action";
 import { Box, Button, Popover } from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -28,9 +27,7 @@ export function SwitchChainPopover({
 
   const account = useAccount();
 
-  const [previousChainId, setPreviousChainId] = useState<number | undefined>(
-    account.chainId
-  );
+  const [previousChainId, setPreviousChainId] = useState<number | undefined>(0);
 
   const dispatch = useDispatch();
 
@@ -47,6 +44,7 @@ export function SwitchChainPopover({
           const _decimals = await contract.decimals();
           _tempArr.push({
             icon: `/assets/${_symbol}.png`,
+            address: tokenAddress,
             name: _name,
             symbol: _symbol,
             decimals: _decimals.toString(),
@@ -75,14 +73,14 @@ export function SwitchChainPopover({
   useEffect(() => {
     if (account.isConnected) {
       setReader(account.chainId!);
-      if (account.chainId !== previousChainId || account.address) {
+      if (account.chainId !== previousChainId) {
         _setTableData();
         setPreviousChainId(account.chainId);
       }
     }
     if (account.isDisconnected) {
       setReader(97);
-      dispatch(resetTable());
+      dispatch(tokenDataTableSlice.actions.reset([]));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [

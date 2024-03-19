@@ -22,6 +22,7 @@ export interface ChainType {
 
 export type ColumnItemType = {
   icon?: string;
+  address?: string;
   name?: string;
   symbol?: string;
   decimals?: string;

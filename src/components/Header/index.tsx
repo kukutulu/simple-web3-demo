@@ -69,7 +69,7 @@ export function Header() {
     if (account.isConnected) {
       checkSupportedChain();
     }
-  }, [account.isConnected, checkSupportedChain]);
+  }, [account.chainId, account.isConnected, checkSupportedChain]);
 
   if (!isMounted) {
     return null;

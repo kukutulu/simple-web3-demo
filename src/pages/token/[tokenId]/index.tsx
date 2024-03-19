@@ -1,16 +1,14 @@
 import { Meta } from "@/components/Meta";
+import { TokenDetail } from "@/components/TokenDetail";
 import AppLayout from "@/layouts/AppLayout";
-import { Box, Typography } from "@mui/material";
 
-function Token() {
+function TokenDetailPage() {
   return (
     <AppLayout>
       <Meta title="Token" />
-      <Box>
-        <Typography>Token ID</Typography>
-      </Box>
+      <TokenDetail />
     </AppLayout>
   );
 }
 
-export default Token;
+export default TokenDetailPage;

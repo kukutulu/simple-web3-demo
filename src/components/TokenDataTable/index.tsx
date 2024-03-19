@@ -10,25 +10,32 @@ import {
   Paper,
   Avatar,
   Box,
+  CircularProgress,
 } from "@mui/material";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { tokenDataTableSelector } from "@/redux/selector";
 import { NoValue } from "../NoValue";
 import { useRouter } from "next/navigation";
+import { ColumnItemType } from "@/global";
+import { tokenDetailSlice } from "@/redux/slices/TokenDetail";
 
 export function TokenDataTable() {
-  const tableDataInStore = useSelector(tokenDataTableSelector);
+  const tableDataInRedux = useSelector(tokenDataTableSelector);
   const router = useRouter();
-  console.log("🚀 ~ TokenDataTable ~ tableDataInStore:", tableDataInStore);
+  const dispatch = useDispatch();
 
-  const handleTableRowClick = (token: string) => {
-    router.push(`/token/${token}`);
+  const handleTableRowClick = (
+    tokenAddress: string,
+    tokenDetail: ColumnItemType
+  ) => {
+    dispatch(tokenDetailSlice.actions.updateSuccess(tokenDetail));
+    router.push(`/token/${tokenAddress}`);
   };
 
   return (
     <>
-      {tableDataInStore.status === "IDLE" && (
-        <Paper sx={{ margin: "80px" }}>
+      <Paper sx={{ margin: "80px" }}>
+        {tableDataInRedux.status === "IDLE" && (
           <TableContainer>
             <Table sx={{ maxWidth: "650" }}>
               <TableHead>
@@ -40,12 +47,15 @@ export function TokenDataTable() {
                 </TableRow>
               </TableHead>
               <TableBody sx={{ cursor: "pointer" }}>
-                {tableDataInStore.data.map((item: any) => (
+                {tableDataInRedux.data.map((item: any) => (
                   <TableRow
                     key={item.name}
                     sx={{
                       "&:last-child td, &:last-child th": {
                         border: 0,
+                      },
+                      "& .MuiTableRow-root:hover": {
+                        backgroundColor: "#ACE2E1",
                       },
                     }}
                   >
@@ -75,10 +85,35 @@ export function TokenDataTable() {
               </TableBody>
             </Table>
           </TableContainer>
-        </Paper>
-      )}
-      {tableDataInStore.status === "PENDING" && (
-        <Paper sx={{ margin: "80px" }}>
+        )}
+        {tableDataInRedux.status === "PENDING" && (
+          <>
+            <TableContainer>
+              <Table sx={{ maxWidth: "650" }}>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Assets</TableCell>
+                    <TableCell align="center">Symbol</TableCell>
+                    <TableCell align="center">Decimals</TableCell>
+                    <TableCell align="center">Balance</TableCell>
+                  </TableRow>
+                </TableHead>
+              </Table>
+            </TableContainer>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                minHeight: "300px",
+              }}
+            >
+              <CircularProgress />
+            </Box>
+          </>
+        )}
+        {tableDataInRedux.status === "FAILED" && <Box>FAILED</Box>}
+        {tableDataInRedux.status === "SUCCESS" && (
           <TableContainer>
             <Table sx={{ maxWidth: "650" }}>
               <TableHead>
@@ -89,38 +124,19 @@ export function TokenDataTable() {
                   <TableCell align="center">Balance</TableCell>
                 </TableRow>
               </TableHead>
-            </Table>
-          </TableContainer>
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            Loading
-          </Box>
-        </Paper>
-      )}
-      {tableDataInStore.status === "FAILED" && <Box>FAILED</Box>}
-      {tableDataInStore.status === "SUCCESS" && (
-        <Paper sx={{ margin: "80px" }}>
-          <TableContainer>
-            <Table sx={{ maxWidth: "650" }}>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Assets</TableCell>
-                  <TableCell align="center">Symbol</TableCell>
-                  <TableCell align="center">Decimals</TableCell>
-                  <TableCell align="center">Balance</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {tableDataInStore.data.map((item: any) => (
+              <TableBody sx={{ cursor: "pointer" }}>
+                {tableDataInRedux.data.map((item: any) => (
                   <TableRow
-                    onClick={() => handleTableRowClick(item.name)}
+                    onClick={() =>
+                      handleTableRowClick(item.address.toLowerCase(), item)
+                    }
                     key={item.name}
-                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                    sx={{
+                      "&:last-child td, &:last-child th": { border: 0 },
+                      "& .MuiTableRow-root:hover": {
+                        backgroundColor: "#ACE2E1",
+                      },
+                    }}
                   >
                     <TableCell
                       sx={{
@@ -148,8 +164,8 @@ export function TokenDataTable() {
               </TableBody>
             </Table>
           </TableContainer>
-        </Paper>
-      )}
+        )}
+      </Paper>
     </>
   );
 }
