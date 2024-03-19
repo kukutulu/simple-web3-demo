@@ -15,15 +15,9 @@ export function Header() {
   const account = useAccount();
   const { disconnect } = useDisconnect();
 
-  const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(
-    null
-  );
-  const [anchorEl2, setAnchorEl2] = React.useState<HTMLButtonElement | null>(
-    null
-  );
-  const [anchorEl3, setAnchorEl3] = React.useState<HTMLButtonElement | null>(
-    null
-  );
+  const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
+  const [anchorEl2, setAnchorEl2] = React.useState<HTMLButtonElement | null>(null);
+  const [anchorEl3, setAnchorEl3] = React.useState<HTMLButtonElement | null>(null);
 
   const checkSupportedChain = useCallback(() => {
     if (account.isConnected) {
@@ -38,9 +32,7 @@ export function Header() {
     }
   }, [account.address, account.chainId, account.isConnected, disconnect]);
 
-  const handleConnectWalletClick = (
-    event: React.MouseEvent<HTMLButtonElement>
-  ) => {
+  const handleConnectWalletClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     if (!account.isConnected) {
       setAnchorEl(event.currentTarget);
     } else {
@@ -48,9 +40,7 @@ export function Header() {
     }
   };
 
-  const handleChangeNetworkClick = (
-    event: React.MouseEvent<HTMLButtonElement>
-  ) => {
+  const handleChangeNetworkClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl3(event.currentTarget);
   };
 
@@ -89,33 +79,16 @@ export function Header() {
         <Typography variant="h6">Web3 Demo</Typography>
         <Box sx={{ display: "flex", alignItems: "center", gap: "20px" }}>
           <Button variant="outlined" onClick={handleChangeNetworkClick}>
-            {account.isConnected === true
-              ? getNetworkName(account.chainId)
-              : "CHANGE NETWORK"}
+            {account.isConnected === true ? getNetworkName(account.chainId) : "CHANGE NETWORK"}
           </Button>
           <Button variant="contained" onClick={handleConnectWalletClick}>
-            {account.isConnected === true
-              ? formatAddress(accountAddress!)
-              : "Connect Wallet"}
+            {account.isConnected === true ? formatAddress(accountAddress!) : "Connect Wallet"}
           </Button>
         </Box>
       </Box>
-      <WalletOptionPopover
-        open={open}
-        anchorEl={anchorEl}
-        onClose={handleClose}
-      />
-      <AccountConnectedPopover
-        open={open2}
-        anchorEl={anchorEl2}
-        accountAddress={accountAddress!}
-        onClose={handleClose}
-      />
-      <SwitchChainPopover
-        open={open3}
-        anchorEl={anchorEl3}
-        onClose={handleClose}
-      />
+      <WalletOptionPopover open={open} anchorEl={anchorEl} onClose={handleClose} />
+      <AccountConnectedPopover open={open2} anchorEl={anchorEl2} accountAddress={accountAddress!} onClose={handleClose} />
+      <SwitchChainPopover open={open3} anchorEl={anchorEl3} onClose={handleClose} />
     </>
   );
 }
