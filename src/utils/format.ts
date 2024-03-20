@@ -8,7 +8,7 @@ export function formatBalance(value: string) {
 }
 
 export function truncateString(
-  s: `0x${string}`,
+  s: string,
   options: TruncateStringOptions = {}
 ): string {
   if (options.first === undefined && options.last === undefined) return s;
@@ -29,11 +29,7 @@ export function truncateString(
   return _s;
 }
 
-export function formatAddress(
-  address: `0x${string}`,
-  first = 6,
-  last = 4
-): string {
+export function formatAddress(address: string, first = 6, last = 4): string {
   if (!address) {
     return "";
   }

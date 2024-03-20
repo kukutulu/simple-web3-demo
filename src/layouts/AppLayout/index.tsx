@@ -1,5 +1,7 @@
 import { Header } from "@/components/Header";
-import RPCProviderProvider, { useRPCProviderContext } from "@/context/rpc-provider-context";
+import RPCProviderProvider, {
+  useRPCProviderContext,
+} from "@/context/rpc-provider-context";
 import TokenAddressesProvider from "@/context/token-addresses-context";
 import store from "@/redux/store";
 import { wagmiConfig } from "@/wagmi/wagmiConfig";
@@ -18,8 +20,11 @@ function CommonLayer({ children }: { children: ReactNode | undefined }) {
   useEffect(() => {
     if (account.isConnected) {
       setReader(account.chainId!);
-    } else setReader(97);
-  }, [account.isConnected, account.chainId, setReader]);
+    }
+    if (account.isDisconnected) {
+      setReader(97);
+    }
+  }, [account.isConnected, account.chainId, setReader, account.isDisconnected]);
 
   return <>{children}</>;
 }

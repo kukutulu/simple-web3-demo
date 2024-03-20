@@ -16,7 +16,11 @@ interface SwitchChainPopoverProps {
   onClose: () => void;
 }
 
-export function SwitchChainPopover({ open, anchorEl, onClose }: SwitchChainPopoverProps) {
+export function SwitchChainPopover({
+  open,
+  anchorEl,
+  onClose,
+}: SwitchChainPopoverProps) {
   const { chains, switchChain } = useSwitchChain();
   const { reader, setReader } = useRPCProviderContext();
   const { tokenAddresses } = useTokenAddressesProviderContext();
@@ -41,7 +45,9 @@ export function SwitchChainPopover({ open, anchorEl, onClose }: SwitchChainPopov
             name: _name,
             symbol: _symbol,
             decimals: _decimals.toString(),
-            balanceOf: BigNumber(result.toString()).dividedBy(BigNumber(10).pow(_decimals)).toFixed(3),
+            balanceOf: BigNumber(result.toString())
+              .dividedBy(BigNumber(10).pow(_decimals))
+              .toFixed(3),
           });
         }
         dispatch(tokenDataTableSlice.actions.updateSuccess([..._tempArr]));
@@ -52,12 +58,11 @@ export function SwitchChainPopover({ open, anchorEl, onClose }: SwitchChainPopov
   }, [account.address, dispatch, reader, tokenAddresses]);
 
   const handleSwitchChain = (chainId: number) => {
-    if (!account.isConnected) {
-      return;
-    }
-    switchChain({ chainId });
-    setReader(chainId);
-    onClose();
+    if (account.isConnected) {
+      switchChain({ chainId });
+      setReader(chainId);
+      onClose();
+    } else return;
   };
 
   useEffect(() => {

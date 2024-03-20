@@ -7,7 +7,7 @@ const tokenDetailInitState = {
     name: "",
     symbol: "",
     decimals: "",
-    balanceOf: null,
+    balanceOf: 0,
   },
   status: "IDLE",
 };

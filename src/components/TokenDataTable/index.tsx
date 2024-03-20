@@ -16,13 +16,27 @@ import { useDispatch, useSelector } from "react-redux";
 import { tokenDataTableSelector } from "@/redux/selector";
 import { NoValue } from "../NoValue";
 import { useRouter } from "next/navigation";
-import { ColumnItemType } from "@/global";
 import { tokenDetailSlice } from "@/redux/slices/TokenDetail";
+import { ColumnItemType, TableDataType } from "@/global";
+import { useCallback, useEffect, useState } from "react";
 
 export function TokenDataTable() {
   const tableDataInRedux = useSelector(tokenDataTableSelector);
+  const [tableData, setTableData] = useState<TableDataType>([]);
   const router = useRouter();
   const dispatch = useDispatch();
+
+  const filterReduxTableData = useCallback(() => {
+    const encounteredNames: { [name: string]: boolean } = {};
+    const _tempArr: TableDataType = [];
+    tableDataInRedux.data.forEach((token: any) => {
+      if (!encounteredNames[token.name]) {
+        encounteredNames[token.name] = true;
+        _tempArr.push(token);
+      }
+    });
+    setTableData([..._tempArr]);
+  }, [tableDataInRedux.data]);
 
   const handleTableRowClick = (
     tokenAddress: string,
@@ -31,6 +45,10 @@ export function TokenDataTable() {
     dispatch(tokenDetailSlice.actions.updateSuccess(tokenDetail));
     router.push(`/token/${tokenAddress}`);
   };
+
+  useEffect(() => {
+    filterReduxTableData();
+  }, [filterReduxTableData]);
 
   return (
     <>
@@ -47,8 +65,11 @@ export function TokenDataTable() {
                 </TableRow>
               </TableHead>
               <TableBody sx={{ cursor: "pointer" }}>
-                {tableDataInRedux.data.map((item: any) => (
+                {tableData.map((item: any) => (
                   <TableRow
+                    onClick={() =>
+                      handleTableRowClick(item.address.toLowerCase(), item)
+                    }
                     key={item.name}
                     sx={{
                       "&:last-child td, &:last-child th": {
