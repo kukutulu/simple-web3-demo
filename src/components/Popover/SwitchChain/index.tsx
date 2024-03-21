@@ -1,14 +1,8 @@
-import { bep20_abi } from "@/abi/BEP20";
 import { useRPCProviderContext } from "@/context/rpc-provider-context";
-import { useTokenAddressesProviderContext } from "@/context/token-addresses-context";
-import { TableDataType } from "@/global";
 import { Box, Button, Popover } from "@mui/material";
-import { BigNumber } from "bignumber.js";
-import { Contract } from "ethers";
-import { useCallback, useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useAccount, useSwitchChain } from "wagmi";
-import { tokenDataTableSlice } from "../../../redux/slices/TokenDataTable";
 
 interface SwitchChainPopoverProps {
   open: boolean;
@@ -21,56 +15,30 @@ export function SwitchChainPopover({
   anchorEl,
   onClose,
 }: SwitchChainPopoverProps) {
+  const [isMounted, setIsMounted] = useState<boolean>(false);
   const { chains, switchChain } = useSwitchChain();
-  const { reader, setReader } = useRPCProviderContext();
-  const { tokenAddresses } = useTokenAddressesProviderContext();
+  const { setReader } = useRPCProviderContext();
+  const [previousChainId, setPreviousChainId] = useState<number>(97);
+  const pathname = usePathname();
+  const router = useRouter();
 
   const account = useAccount();
-  const dispatch = useDispatch();
 
-  const _setTableData = useCallback(async () => {
-    try {
-      const _tempArr: TableDataType = [];
-      if (reader) {
-        dispatch(tokenDataTableSlice.actions.updatePending([]));
-        for (let tokenAddress of tokenAddresses) {
-          const contract = new Contract(tokenAddress, bep20_abi, reader);
-          const result = await contract.balanceOf(account.address);
-          const _name = await contract.name();
-          const _symbol = await contract.symbol();
-          const _decimals = await contract.decimals();
-          _tempArr.push({
-            icon: `/assets/${_symbol}.png`,
-            address: tokenAddress,
-            name: _name,
-            symbol: _symbol,
-            decimals: _decimals.toString(),
-            balanceOf: BigNumber(result.toString())
-              .dividedBy(BigNumber(10).pow(_decimals))
-              .toFixed(3),
-          });
-        }
-        dispatch(tokenDataTableSlice.actions.updateSuccess([..._tempArr]));
-      }
-    } catch (error) {
-      dispatch(tokenDataTableSlice.actions.reset([]));
-    }
-  }, [account.address, dispatch, reader, tokenAddresses]);
-
-  const handleSwitchChain = (chainId: number) => {
+  const handleSwitchChain = async (chainId: number) => {
     if (account.isConnected) {
+      setPreviousChainId(chainId);
       switchChain({ chainId });
       setReader(chainId);
-      onClose();
     } else return;
   };
 
   useEffect(() => {
-    if (account.isConnected) {
-      _setTableData();
-    }
-    if (account.isDisconnected) dispatch(tokenDataTableSlice.actions.reset([]));
-  }, [account, _setTableData, dispatch]);
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return null;
+  }
 
   return (
     <Popover

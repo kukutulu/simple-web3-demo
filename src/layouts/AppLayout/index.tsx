@@ -20,11 +20,8 @@ function CommonLayer({ children }: { children: ReactNode | undefined }) {
   useEffect(() => {
     if (account.isConnected) {
       setReader(account.chainId!);
-    }
-    if (account.isDisconnected) {
-      setReader(97);
-    }
-  }, [account.isConnected, account.chainId, setReader, account.isDisconnected]);
+    } else setReader(97);
+  }, [account.isConnected, account.chainId, setReader]);
 
   return <>{children}</>;
 }

@@ -35,3 +35,11 @@ export function formatAddress(address: string, first = 6, last = 4): string {
   }
   return truncateString(address, { first, last });
 }
+
+export function debounce(callback: any, delay: any) {
+  let timeout: any;
+  return function () {
+    clearTimeout(timeout);
+    timeout = setTimeout(callback, delay);
+  };
+}

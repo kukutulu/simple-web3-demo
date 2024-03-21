@@ -17,12 +17,12 @@ interface Props {
 }
 
 export default function TokenAddressesProvider({ children }: Props) {
-  const wagmiConnect = useAccount();
+  const account = useAccount();
 
   const tokenAddresses = useMemo(() => {
-    if (wagmiConnect.isConnected) return TokenAddresses[wagmiConnect.chainId!];
-    else return [];
-  }, [wagmiConnect.chainId, wagmiConnect.isConnected]);
+    if (account.isConnected) return TokenAddresses[account.chainId!];
+    else return TokenAddresses[97];
+  }, [account.chainId, account.isConnected]);
 
   return (
     <TokenAddressesProviderContext.Provider value={{ tokenAddresses }}>

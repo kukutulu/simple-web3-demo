@@ -48,7 +48,7 @@ export function WalletOptionPopover({
           <WalletOption
             key={index}
             connector={connector}
-            onClick={() => connect({ chainId: 56, connector })}
+            onClick={() => connect({ chainId: 97, connector })}
           />
         ))}
       </Box>
