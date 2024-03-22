@@ -26,9 +26,8 @@ export function SwitchChainPopover({
 
   const handleSwitchChain = async (chainId: number) => {
     if (account.isConnected) {
-      setPreviousChainId(chainId);
       switchChain({ chainId });
-      setReader(chainId);
+      router.push("/home");
     } else return;
   };
 

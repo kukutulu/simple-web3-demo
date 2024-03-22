@@ -22,7 +22,6 @@ import { getTokenDetailAsync } from "@/redux/slices/TokenDetail";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { useRPCProviderContext } from "@/context/rpc-provider-context";
 import { useAccount } from "wagmi";
-import { useTokenAddressesProviderContext } from "@/context/token-addresses-context";
 import { Contract, isAddress, parseUnits } from "ethers";
 import { debounce } from "@/utils/format";
 import { bep20_abi } from "@/abi/BEP20";
@@ -38,37 +37,34 @@ export function TokenDetail() {
   const handleOpen = () => setOpenModal(true);
   const handleClose = () => setOpenModal(false);
 
-  const { reader } = useRPCProviderContext();
+  const { reader, setReader } = useRPCProviderContext();
 
   const tokenDetailInRedux = useSelector(tokenDetailSelector);
-  const { tokenAddresses } = useTokenAddressesProviderContext();
   const { signer } = useRPCProviderContext();
   const account = useAccount();
   const dispatch = useDispatch();
   const pathname = usePathname();
   const router = useRouter();
-  const segments = pathname!.split("/");
-  const tokenAddress = segments[segments.length - 1];
 
   const getTokenDetail = useCallback(async () => {
     try {
-      if (
-        tokenAddresses === undefined ||
-        !tokenAddresses.includes(tokenAddress)
-      ) {
-        router.push("/home");
+      if (pathname) {
+        const segments = pathname!.split("/");
+        const tokenAddress = segments[segments.length - 1];
+        if (reader) {
+          dispatch(
+            getTokenDetailAsync({
+              tokenAddress: tokenAddress,
+              accountAddress: account.address!,
+              reader: reader,
+            })
+          );
+        }
       }
-      dispatch(
-        getTokenDetailAsync({
-          tokenAddress: tokenAddress,
-          accountAddress: account.address!,
-          reader: reader!,
-        })
-      );
     } catch (error) {
       console.error(error);
     }
-  }, [account.address, dispatch, reader, router, tokenAddress, tokenAddresses]);
+  }, [account.address, dispatch, pathname, reader]);
 
   const backButtonClick = () => {
     router.push("/home");
@@ -109,6 +105,8 @@ export function TokenDetail() {
   };
 
   const transferToAddress = async () => {
+    const segments = pathname!.split("/");
+    const tokenAddress = segments[segments.length - 1];
     const contract = new Contract(tokenAddress, bep20_abi, signer);
     if (amount) {
       const amountFormatted = BigNumber(amount)
@@ -145,37 +143,6 @@ export function TokenDetail() {
           justifyContent: "center",
         }}
       >
-        {/* {tokenDetailInRedux.status === "FAILED" && (
-        <Box sx={{ display: "flex", flex: 1, alignItems: "flex-start" }}>
-          <IconButton onClick={() => backButtonClick()}>
-            <ArrowBackIcon />
-          </IconButton>
-          <Box sx={{ flex: 1, marginLeft: "10px", marginRight: "50px" }}>
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                flexDirection: "column",
-                gap: "10px",
-                marginBottom: "20px",
-              }}
-            >
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <Typography variant="h1" color="error" align="center">
-                  SOMETHING WRONG
-                </Typography>
-              </Box>
-            </Box>
-          </Box>
-        </Box>
-      )} */}
         {tokenDetailInRedux.status === "PENDING" && (
           <Box sx={{ display: "flex", flex: 1, alignItems: "flex-start" }}>
             <IconButton onClick={() => backButtonClick()}>
@@ -459,11 +426,11 @@ export function TokenDetail() {
                     inputProps={{
                       inputMode: "numeric",
                       pattern: "^[0-9]*$",
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          {tokenDetailInRedux.data.symbol.toLowerCase()}
-                        </InputAdornment>
-                      ),
+                      // endAdornment: (
+                      //   <InputAdornment position="end">
+                      //     {tokenDetailInRedux.data.symbol.toLowerCase()}
+                      //   </InputAdornment>
+                      // ),
                     }}
                   />
                   <Button onClick={() => {}}>Max</Button>
@@ -482,7 +449,7 @@ export function TokenDetail() {
                     hidden={!isValidateAmount}
                     sx={{ color: "red" }}
                   >
-                    Không đủ tiền đổ ga
+                    Not valid amount
                   </FormHelperText>
                 </Grid>
               </Grid>
