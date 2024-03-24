@@ -30,3 +30,10 @@ export type ColumnItemType = {
 };
 
 export type TableDataType = ColumnItemType[];
+
+export type TransferResult = {
+  receiptAddress?: string;
+  amount?: number;
+  symbol?: string;
+  hash?: string;
+};

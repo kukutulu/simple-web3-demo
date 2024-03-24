@@ -1,7 +1,6 @@
-import { useRPCProviderContext } from "@/context/rpc-provider-context";
 import { Box, Button, Popover } from "@mui/material";
-import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 import { useAccount, useSwitchChain } from "wagmi";
 
 interface SwitchChainPopoverProps {
@@ -17,23 +16,29 @@ export function SwitchChainPopover({
 }: SwitchChainPopoverProps) {
   const [isMounted, setIsMounted] = useState<boolean>(false);
   const { chains, switchChain } = useSwitchChain();
-  const { setReader } = useRPCProviderContext();
-  const [previousChainId, setPreviousChainId] = useState<number>(97);
-  const pathname = usePathname();
+  const account = useAccount();
+  const [previousChainId, setPreviousChainId] = useState<number>(
+    account.chainId!
+  );
   const router = useRouter();
 
-  const account = useAccount();
-
-  const handleSwitchChain = async (chainId: number) => {
+  const onButtonSwitchChainClick = async (chainId: number) => {
     if (account.isConnected) {
       switchChain({ chainId });
-      router.push("/home");
     } else return;
   };
 
+  const handleSwitchChain = useCallback(() => {
+    if (previousChainId !== account.chainId) {
+      setPreviousChainId(account.chainId!);
+      router.push("/home");
+    } else return;
+  }, [account.chainId, previousChainId, router]);
+
   useEffect(() => {
+    handleSwitchChain();
     setIsMounted(true);
-  }, []);
+  }, [handleSwitchChain]);
 
   if (!isMounted) {
     return null;
@@ -68,7 +73,10 @@ export function SwitchChainPopover({
         }}
       >
         {chains.map((chain) => (
-          <Button key={chain.id} onClick={() => handleSwitchChain(chain.id)}>
+          <Button
+            key={chain.id}
+            onClick={() => onButtonSwitchChainClick(chain.id)}
+          >
             {chain.name}
           </Button>
         ))}

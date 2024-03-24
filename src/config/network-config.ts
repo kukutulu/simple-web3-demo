@@ -76,7 +76,13 @@ export const CHAINS: ChainType = {
     blockExplorerUrls: ["https://ftmscan.com"],
     name: "FTM Mainnet",
     nativeCurrency: FTM,
-    urls: ["https://rpc.ftm.tools"],
+    urls: [
+      "https://rpc.ftm.tools",
+      "https://fantom-mainnet.public.blastapi.io",
+      "https://rpc.ankr.com/fantom",
+      "https://1rpc.io/ftm",
+      "https://fantom.blockpi.network/v1/rpc/public",
+    ],
     keyToWagmi: "ftm",
   },
 };

@@ -4,7 +4,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import BigNumber from "bignumber.js";
 import { Contract, JsonRpcProvider } from "ethers";
 
-const tableInitState = {
+export const tableInitState = {
   data: [] as TableDataType,
   status: "IDLE",
 };
