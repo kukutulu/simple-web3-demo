@@ -12,26 +12,46 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { isAddress } from "ethers";
 import { debounce } from "@/utils/format";
-import { maxAllowAmount } from "@/hooks/use-wallet-action";
+import { maxAllowAmount, transferFrom } from "@/hooks/use-wallet-action";
 import { useRPCProviderContext } from "@/context/rpc-provider-context";
+import { useAccount } from "wagmi";
+import BigNumber from "bignumber.js";
+import { useSelector } from "react-redux";
+import { tokenDetailSelector } from "@/redux/selector";
 
 export default function TransferFrom() {
   const [ownerAddress, setOwnerAddress] = useState<string>("");
-  const [senderAddress, setSenderAddress] = useState<string>("");
+  console.log("🚀 ~ TransferFrom ~ ownerAddress:", ownerAddress);
   const [receiptAddress, setReceiptAddress] = useState<string>("");
+  console.log("🚀 ~ TransferFrom ~ receiptAddress:", receiptAddress);
   const [amount, setAmount] = useState<number | null>(null);
-  const [isValidateAddress, setIsValidateAddress] = useState<boolean>(true);
+  const [isValidateOwner, setIsValidateOwner] = useState<boolean>(true);
+  const [isValidateReceipt, setIsValidateReceipt] = useState<boolean>(true);
   const [isValidateAmount, setValidateAmount] = useState<boolean>(true);
 
   const router = useRouter();
   const pathname = usePathname();
-  const { signer } = useRPCProviderContext();
+  const account = useAccount();
+  const { signer, reader } = useRPCProviderContext();
+  const tokenDetailInRedux = useSelector(tokenDetailSelector);
 
-  const validateAddress = (address: string) => {
+  const validateAddress = (address: string, type: string) => {
     const validate = isAddress(address);
-    debounce(setIsValidateAddress(validate), 1000);
-    if (senderAddress === receiptAddress) {
-      setIsValidateAddress(false);
+    if (type === "owner") {
+      debounce(setIsValidateOwner(validate), 1000);
+    } else {
+      debounce(setIsValidateReceipt(validate), 1000);
+    }
+    if (ownerAddress !== receiptAddress) {
+      console.log(123);
+
+      setIsValidateReceipt(false);
+    }
+    if (address === "" && type === "owner") {
+      setIsValidateOwner(true);
+    }
+    if (address === "" && type === "receipt") {
+      setIsValidateReceipt(true);
     }
   };
 
@@ -40,14 +60,19 @@ export default function TransferFrom() {
     setAmount(parseFloat(amount));
   };
 
-  const getMaxAmount = () => {
-    const maxAmount = maxAllowAmount({
-      pathname,
-      signer,
-      ownerAddress,
-      spenderAddress: senderAddress,
-    });
-    console.log("🚀 ~ getMaxAmount ~ maxAmount:", maxAmount);
+  const setMaxAmount = async () => {
+    if (account.isConnected && ownerAddress) {
+      const maxAmount = await maxAllowAmount({
+        pathname,
+        reader,
+        ownerAddress,
+        spenderAddress: account.address,
+      });
+      const formattedMaxAmount = BigNumber(maxAmount.toString())
+        .dividedBy(BigNumber(10).pow(tokenDetailInRedux.data.decimals))
+        .toFixed();
+      setAmount(parseFloat(formattedMaxAmount));
+    }
   };
 
   return (
@@ -76,34 +101,47 @@ export default function TransferFrom() {
               gap: "20px",
             }}
           >
-            <Box sx={{ width: "100%", display: "flex", alignItems: "center" }}>
+            <Box
+              sx={{
+                width: "100%",
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+              }}
+            >
               <TextField
-                error={false}
+                error={!isValidateOwner}
                 label="Owner"
                 variant="outlined"
                 sx={{ width: "100%" }}
                 onChange={(e) => {
-                  //   validateAddress(e.target.value);
+                  validateAddress(e.target.value, "owner");
                   setOwnerAddress(e.target.value);
                 }}
               />
-              <FormHelperText hidden={true} sx={{ color: "red" }}>
+              <FormHelperText hidden={isValidateOwner} sx={{ color: "red" }}>
                 Not valid address
               </FormHelperText>
             </Box>
-
-            <Box sx={{ width: "100%", display: "flex", alignItems: "center" }}>
+            <Box
+              sx={{
+                width: "100%",
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+              }}
+            >
               <TextField
-                error={false}
+                error={!isValidateReceipt}
                 label="Recipient"
                 variant="outlined"
                 sx={{ width: "100%" }}
                 onChange={(e) => {
-                  //   validateAddress(e.target.value);
+                  validateAddress(e.target.value, "receipt");
                   setReceiptAddress(e.target.value);
                 }}
               />
-              <FormHelperText hidden={true} sx={{ color: "red" }}>
+              <FormHelperText hidden={isValidateReceipt} sx={{ color: "red" }}>
                 Not valid address
               </FormHelperText>
             </Box>
@@ -117,6 +155,7 @@ export default function TransferFrom() {
             >
               <TextField
                 error={false}
+                value={amount}
                 type="number"
                 placeholder="Amount"
                 variant="outlined"
@@ -127,17 +166,25 @@ export default function TransferFrom() {
                 }}
                 onChange={(e) => validateAmount(e.target.value)}
               />
-              <Button onClick={() => getMaxAmount()}>Max</Button>
+              <Button onClick={() => setMaxAmount()}>Max</Button>
             </Box>
           </Box>
           <FormHelperText hidden={true} sx={{ color: "red" }}>
             Not valid amount
           </FormHelperText>
           <Button
-            disabled={isValidateAddress! || isValidateAmount}
+            disabled={!isValidateReceipt || !isValidateAmount}
             sx={{ width: "100%", marginTop: "20px" }}
             variant="contained"
-            onClick={() => {}}
+            onClick={() =>
+              transferFrom({
+                pathname,
+                signer,
+                senderAddress: account.address,
+                receiptAddress,
+                amount,
+              })
+            }
           >
             Transfer
           </Button>

@@ -379,7 +379,11 @@ export function TokenDetail() {
                 marginY: "20px",
                 display: "flex",
               }}
-              onClick={() => router.push(`/transfer-from`)}
+              onClick={() => {
+                const segments = pathname!.split("/");
+                const tokenAddress = segments[segments.length - 1];
+                router.push(`/transfer-from/${tokenAddress}`);
+              }}
             >
               <Typography>Transfer from</Typography>
             </Button>

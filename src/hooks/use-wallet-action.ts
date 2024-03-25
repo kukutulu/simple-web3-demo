@@ -1,6 +1,6 @@
 import { bep20_abi } from "@/abi/BEP20";
 import BigNumber from "bignumber.js";
-import { Contract, JsonRpcSigner } from "ethers";
+import { Contract, JsonRpcProvider, JsonRpcSigner } from "ethers";
 
 export async function approve({
   pathname,
@@ -20,16 +20,11 @@ export async function approve({
       const segments = pathname!.split("/");
       const tokenAddress = segments[segments.length - 1];
       const contract = new Contract(tokenAddress, bep20_abi, signer);
-      //   if (amount && receiptAddress) {
-      //     await contract.approve(receiptAddress, amount);
-      //   }
 
       if (amount && receiptAddress && decimals) {
         const amountFormatted = BigNumber(amount).multipliedBy(
           BigNumber(10).pow(parseInt(decimals))
         );
-        console.log(amountFormatted);
-
         await contract.approve(receiptAddress, amountFormatted.toString());
       }
     }
@@ -40,12 +35,12 @@ export async function approve({
 
 export async function maxAllowAmount({
   pathname,
-  signer,
+  reader,
   ownerAddress,
   spenderAddress,
 }: {
   pathname?: string | null;
-  signer?: JsonRpcSigner;
+  reader?: JsonRpcProvider;
   ownerAddress?: string;
   spenderAddress?: string;
 }) {
@@ -53,7 +48,7 @@ export async function maxAllowAmount({
     if (pathname) {
       const segments = pathname!.split("/");
       const tokenAddress = segments[segments.length - 1];
-      const contract = new Contract(tokenAddress, bep20_abi, signer);
+      const contract = new Contract(tokenAddress, bep20_abi, reader);
       if (ownerAddress && spenderAddress) {
         const maxAmount = await contract.allowance(
           ownerAddress,
