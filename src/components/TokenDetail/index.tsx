@@ -23,19 +23,17 @@ import { useAccount } from "wagmi";
 import { isAddress } from "ethers";
 import { debounce } from "@/utils/format";
 import { tokenTransferAsync } from "@/redux/slices/TokenTransfer";
+import { approve } from "@/hooks/use-wallet-action";
 
 export function TokenDetail() {
   const [isMounted, setIsMounted] = useState<boolean>(false);
   const [isValidateAddress, setIsValidateAddress] = useState<boolean>(true);
   const [isValidateAmount, setValidateAmount] = useState<boolean>(false);
-  const [amount, setAmount] = useState<number>(0);
+  const [amount, setAmount] = useState<number | null>(null);
   const [receiptAddress, setReceiptAddress] = useState<string>("");
-
-  const { reader } = useRPCProviderContext();
-
+  const { reader, signer } = useRPCProviderContext();
   const tokenDetailInRedux = useSelector(tokenDetailSelector);
   const tokenTransferInRedux = useSelector(tokenTransferSelector);
-  const { signer } = useRPCProviderContext();
   const account = useAccount();
   const dispatch = useDispatch();
   const pathname = usePathname();
@@ -60,10 +58,6 @@ export function TokenDetail() {
       console.error(error);
     }
   }, [account.address, dispatch, pathname, reader]);
-
-  const backButtonClick = () => {
-    router.push("/home");
-  };
 
   const copyButtonClick = (tokenAddress: string) => {
     navigator.clipboard.writeText(tokenAddress);
@@ -95,7 +89,7 @@ export function TokenDetail() {
 
   const transferToAddress = async () => {
     try {
-      if (amount === 0) {
+      if (!amount) {
         return;
       }
       if (pathname) {
@@ -143,378 +137,255 @@ export function TokenDetail() {
         justifyContent: "center",
       }}
     >
-      {tokenDetailInRedux.status === "PENDING" && (
-        <Box sx={{ display: "flex", flex: 1, alignItems: "flex-start" }}>
-          <IconButton onClick={() => backButtonClick()}>
-            <ArrowBackIcon />
-          </IconButton>
-          <Box sx={{ flex: 1, marginLeft: "10px", marginRight: "50px" }}>
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                flexDirection: "column",
-                gap: "10px",
-                marginBottom: "20px",
-              }}
-            >
+      <Box sx={{ display: "flex", flex: 1, alignItems: "flex-start" }}>
+        <IconButton onClick={() => router.push("/home")}>
+          <ArrowBackIcon />
+        </IconButton>
+        <Box sx={{ flex: 1, marginLeft: "10px", marginRight: "50px" }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexDirection: "column",
+              gap: "10px",
+              marginBottom: "20px",
+            }}
+          >
+            {tokenDetailInRedux.status === "PENDING" ? (
               <CircularProgress />
-            </Box>
-            <Box
+            ) : (
+              <>
+                <Avatar
+                  sx={{ width: "60px", height: "60px" }}
+                  alt={`${tokenDetailInRedux.data.name}`}
+                  src={tokenDetailInRedux.data.icon}
+                />
+                <Typography variant="h5">
+                  {tokenDetailInRedux.data.name}
+                </Typography>
+              </>
+            )}
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "20px",
+              border: "2px solid #008DDA",
+              borderRadius: "20px",
+              marginBottom: "20px",
+            }}
+          >
+            <Grid container>
+              <Grid item lg={6} md={12}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "flex-start",
+                    justifyContent: "center",
+                    flexDirection: "column",
+                    gap: "10px",
+                  }}
+                >
+                  <Box sx={{ display: "flex", alignItems: "center" }}>
+                    <Typography>
+                      {formatAddress(tokenDetailInRedux.data.address)}
+                    </Typography>
+                    <IconButton
+                      onClick={() =>
+                        copyButtonClick(tokenDetailInRedux.data.address)
+                      }
+                    >
+                      <ContentCopyIcon color="primary" />
+                    </IconButton>
+                  </Box>
+                  <Typography>
+                    decimals: {tokenDetailInRedux.data.decimals}
+                  </Typography>
+                </Box>
+              </Grid>
+              <Grid item lg={6} md={12}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: "15px",
+                    flexDirection: "column",
+                  }}
+                >
+                  <Typography variant="h5">Balance:&ensp;&ensp;</Typography>
+                  <Typography variant="h5">
+                    <b>
+                      {parseFloat(tokenDetailInRedux.data.balanceOf)}
+                      &ensp;
+                    </b>
+                    {tokenDetailInRedux.data.symbol}
+                  </Typography>
+                </Box>
+              </Grid>
+            </Grid>
+          </Box>
+          <Grid container>
+            <Grid
+              item
+              xs={3}
               sx={{
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "center",
-                padding: "20px",
-                border: "2px solid #008DDA",
-                borderRadius: "20px",
                 marginBottom: "20px",
               }}
             >
-              <Grid container>
-                <Grid item lg={6} md={12}>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "flex-start",
-                      justifyContent: "center",
-                      flexDirection: "column",
-                      gap: "10px",
-                    }}
-                  >
-                    <Box sx={{ display: "flex", alignItems: "center" }}>
-                      <Typography>
-                        {formatAddress(tokenDetailInRedux.data.address)}
-                      </Typography>
-                      <IconButton
-                        onClick={() =>
-                          copyButtonClick(tokenDetailInRedux.data.address)
-                        }
-                      >
-                        <ContentCopyIcon color="primary" />
-                      </IconButton>
-                    </Box>
-                    <Typography>
-                      decimals: {tokenDetailInRedux.data.decimals}
-                    </Typography>
-                  </Box>
-                </Grid>
-                <Grid item lg={6} md={12}>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "flex-start",
-                      gap: "15px",
-                      flexDirection: "column",
-                    }}
-                  >
-                    <Typography variant="h5">Balance:&ensp;&ensp;</Typography>
-                    <Typography variant="h5">
-                      <b>0 &ensp;</b>
-                      {tokenDetailInRedux.data.symbol}
-                    </Typography>
-                  </Box>
-                </Grid>
-              </Grid>
-            </Box>
-            <Grid container>
-              <Grid
-                item
-                xs={3}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  marginBottom: "20px",
-                }}
-              >
-                <Typography>Send To:</Typography>
-              </Grid>
-              <Grid
-                item
-                xs={9}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "10px",
-                  marginBottom: "20px",
-                }}
-              >
-                <TextField
-                  error={!isValidateAddress}
-                  label="Public address"
-                  variant="outlined"
-                  sx={{ width: "100%" }}
-                  onChange={(e) => validateAddress(e.target.value)}
-                />
-                <FormHelperText
-                  hidden={isValidateAddress}
-                  sx={{ color: "red" }}
-                >
-                  Not valid address
-                </FormHelperText>
-              </Grid>
-              <Grid
-                item
-                xs={3}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                }}
-              >
-                <Typography>Amount:</Typography>
-              </Grid>
-              <Grid
-                item
-                xs={9}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "10px",
-                }}
-              >
-                <TextField
-                  label="Amount"
-                  type="number"
-                  error={isValidateAmount}
-                  onChange={(e) =>
-                    validateAmount(
-                      e.target.value,
-                      tokenDetailInRedux.data.balanceOf
-                    )
-                  }
-                  inputProps={{
-                    inputMode: "numeric",
-                    pattern: "^[0-9]*$",
-                  }}
-                />
-              </Grid>
-              <Grid item xs={3}></Grid>
-              <Grid
-                item
-                xs={9}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "10px",
-                }}
-              >
-                <FormHelperText
-                  hidden={!isValidateAmount}
-                  sx={{ color: "red" }}
-                >
-                  Not valid amount
-                </FormHelperText>
-              </Grid>
+              <Typography>Address:</Typography>
             </Grid>
-            <Button
-              variant="contained"
-              disabled={isValidateAmount || !isValidateAddress}
-              sx={{
-                width: "100%",
-                height: "40px",
-                marginY: "20px",
-                display: "flex",
-                alignItems: "center",
-              }}
-              onClick={() => transferToAddress()}
-            >
-              <Typography>SEND</Typography>
-            </Button>
-          </Box>
-        </Box>
-      )}
-      {tokenDetailInRedux.status === "SUCCESS" && (
-        <Box sx={{ display: "flex", flex: 1, alignItems: "flex-start" }}>
-          <IconButton onClick={() => backButtonClick()}>
-            <ArrowBackIcon />
-          </IconButton>
-          <Box sx={{ flex: 1, marginLeft: "10px", marginRight: "50px" }}>
-            <Box
+            <Grid
+              item
+              xs={9}
               sx={{
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "center",
-                flexDirection: "column",
                 gap: "10px",
                 marginBottom: "20px",
               }}
             >
-              <Avatar
-                sx={{ width: "60px", height: "60px" }}
-                alt={`${tokenDetailInRedux.data.name}`}
-                src={tokenDetailInRedux.data.icon}
+              <TextField
+                error={!isValidateAddress}
+                placeholder="Public address"
+                variant="outlined"
+                sx={{ width: "100%" }}
+                onChange={(e) => validateAddress(e.target.value)}
               />
-              <Typography variant="h5">
-                {tokenDetailInRedux.data.name}
-              </Typography>
-            </Box>
+              <FormHelperText hidden={isValidateAddress} sx={{ color: "red" }}>
+                Not valid address
+              </FormHelperText>
+            </Grid>
+            <Grid
+              item
+              xs={3}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              <Typography>Amount:</Typography>
+            </Grid>
+            <Grid
+              item
+              xs={9}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+              }}
+            >
+              <TextField
+                value={amount}
+                placeholder="Amount"
+                type="number"
+                error={isValidateAmount}
+                onChange={(e) =>
+                  validateAmount(
+                    e.target.value,
+                    tokenDetailInRedux.data.balanceOf
+                  )
+                }
+                inputProps={{
+                  inputMode: "numeric",
+                  pattern: "^[0-9]*$",
+                }}
+              />
+              <Button
+                onClick={() =>
+                  setAmount(parseFloat(tokenDetailInRedux.data.balanceOf))
+                }
+              >
+                Max
+              </Button>
+            </Grid>
+            <Grid item xs={3}></Grid>
+            <Grid
+              item
+              xs={9}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+              }}
+            >
+              <FormHelperText hidden={!isValidateAmount} sx={{ color: "red" }}>
+                Not valid amount
+              </FormHelperText>
+            </Grid>
+          </Grid>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              flexDirection: "column",
+              width: "100%",
+            }}
+          >
             <Box
               sx={{
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                padding: "20px",
-                border: "2px solid #008DDA",
-                borderRadius: "20px",
-                marginBottom: "20px",
+                width: "100%",
+                gap: "15px",
               }}
             >
-              <Grid container>
-                <Grid item lg={6} md={12}>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "flex-start",
-                      justifyContent: "center",
-                      flexDirection: "column",
-                      gap: "10px",
-                    }}
-                  >
-                    <Box sx={{ display: "flex", alignItems: "center" }}>
-                      <Typography>
-                        {formatAddress(tokenDetailInRedux.data.address)}
-                      </Typography>
-                      <IconButton
-                        onClick={() =>
-                          copyButtonClick(tokenDetailInRedux.data.address)
-                        }
-                      >
-                        <ContentCopyIcon color="primary" />
-                      </IconButton>
-                    </Box>
-                    <Typography>
-                      decimals: {tokenDetailInRedux.data.decimals}
-                    </Typography>
-                  </Box>
-                </Grid>
-                <Grid item lg={6} md={12}>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "flex-start",
-                      gap: "15px",
-                      flexDirection: "column",
-                    }}
-                  >
-                    <Typography variant="h5">Balance:&ensp;&ensp;</Typography>
-                    <Typography variant="h5">
-                      <b>
-                        {parseFloat(tokenDetailInRedux.data.balanceOf)}
-                        &ensp;
-                      </b>
-                      {tokenDetailInRedux.data.symbol}
-                    </Typography>
-                  </Box>
-                </Grid>
-              </Grid>
+              <Button
+                variant="contained"
+                disabled={isValidateAmount || !isValidateAddress}
+                sx={{
+                  width: "100%",
+                  height: "40px",
+                  marginY: "20px",
+                  display: "flex",
+                }}
+                onClick={() => transferToAddress()}
+              >
+                <Typography>SEND</Typography>
+              </Button>
+              <Button
+                variant="outlined"
+                disabled={isValidateAmount || !isValidateAddress}
+                sx={{
+                  width: "100%",
+                  height: "40px",
+                  marginY: "20px",
+                  display: "flex",
+                }}
+                onClick={() =>
+                  approve({
+                    pathname,
+                    signer,
+                    amount,
+                    receiptAddress,
+                    decimals: tokenDetailInRedux.data.decimals,
+                  })
+                }
+              >
+                <Typography>Approve</Typography>
+              </Button>
             </Box>
-            <Grid container>
-              <Grid
-                item
-                xs={3}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  marginBottom: "20px",
-                }}
-              >
-                <Typography>Send To:</Typography>
-              </Grid>
-              <Grid
-                item
-                xs={9}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "10px",
-                  marginBottom: "20px",
-                }}
-              >
-                <TextField
-                  error={!isValidateAddress}
-                  label="Public address"
-                  variant="outlined"
-                  sx={{ width: "100%" }}
-                  onChange={(e) => validateAddress(e.target.value)}
-                />
-                <FormHelperText
-                  hidden={isValidateAddress}
-                  sx={{ color: "red" }}
-                >
-                  Not valid address
-                </FormHelperText>
-              </Grid>
-              <Grid
-                item
-                xs={3}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                }}
-              >
-                <Typography>Amount:</Typography>
-              </Grid>
-              <Grid
-                item
-                xs={9}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "10px",
-                }}
-              >
-                <TextField
-                  label="Amount"
-                  type="number"
-                  error={isValidateAmount}
-                  onChange={(e) =>
-                    validateAmount(
-                      e.target.value,
-                      tokenDetailInRedux.data.balanceOf
-                    )
-                  }
-                  inputProps={{
-                    inputMode: "numeric",
-                    pattern: "^[0-9]*$",
-                  }}
-                />
-              </Grid>
-              <Grid item xs={3}></Grid>
-              <Grid
-                item
-                xs={9}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "10px",
-                }}
-              >
-                <FormHelperText
-                  hidden={!isValidateAmount}
-                  sx={{ color: "red" }}
-                >
-                  Not valid amount
-                </FormHelperText>
-              </Grid>
-            </Grid>
+            <Typography color="#DDDDDD">or</Typography>
             <Button
               variant="contained"
-              disabled={isValidateAmount || !isValidateAddress}
               sx={{
                 width: "100%",
                 height: "40px",
                 marginY: "20px",
                 display: "flex",
-                alignItems: "center",
               }}
-              onClick={() => transferToAddress()}
+              onClick={() => router.push(`/transfer-from`)}
             >
-              <Typography>SEND</Typography>
+              <Typography>Transfer from</Typography>
             </Button>
           </Box>
         </Box>
-      )}
+      </Box>
     </Paper>
   );
 }

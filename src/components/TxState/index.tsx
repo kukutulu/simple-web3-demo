@@ -28,7 +28,7 @@ export default function TxState() {
 
   return (
     <>
-      {tokenTransferInRedux.status === "PENDING" && (
+      {tokenTransferInRedux.status === "WAITING_CONFIRM" && (
         <Card sx={{ position: "fixed", bottom: 50, left: 40 }}>
           <Box
             sx={{
@@ -44,12 +44,6 @@ export default function TxState() {
             <Typography>Waiting for transaction</Typography>
           </Box>
         </Card>
-        // <Box sx={{ position: "fixed", bottom: 50, left: 40, padding: 1 }}>
-        //   <Box sx={{ width: "200px" }}>
-        //     <CircularProgress />
-        //     <Typography>Waiting for confirm</Typography>
-        //   </Box>
-        // </Box>
       )}
       {tokenTransferInRedux.status === "SUCCESS" && isVisible && (
         <Card sx={{ position: "fixed", bottom: 50, left: 40 }}>

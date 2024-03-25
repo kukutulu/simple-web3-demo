@@ -32,6 +32,7 @@ export const tokenTransferAsync = createAsyncThunk(
       const transferAmount = parseUnits(amountFormatted, parseInt(decimals));
       const transfer = await contract.transfer(receiptAddress, transferAmount);
       const hash = transfer.hash;
+      tokenTransferSlice.actions.updateTxStatus();
       await transfer.wait();
       _result = { receiptAddress, amount, symbol, hash };
     }
@@ -43,11 +44,15 @@ export const tokenTransferAsync = createAsyncThunk(
 export const tokenTransferSlice = createSlice({
   name: "tokenTransfer",
   initialState: tokenTransferInitState,
-  reducers: {},
+  reducers: {
+    updateTxStatus: (state) => {
+      state.status = "PENDING";
+    },
+  },
   extraReducers(builder) {
     builder
       .addCase(tokenTransferAsync.pending, (state) => {
-        state.status = "PENDING";
+        state.status = "WAITING_CONFIRM";
       })
       .addCase(tokenTransferAsync.fulfilled, (state, action) => {
         state.status = "SUCCESS";
